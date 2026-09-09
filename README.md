@@ -18,3 +18,51 @@ Two complementary models for antibody paratope prediction:
 | Structure (ParaDG)  | `paradg`   | `python -m paradg.train --config configs/paradg.json --data-dir <your-dataset-dir> ...` |
 
 ## Repository layout
+```
+├── README.md / README_CN.md  -- this file / Chinese version
+├── LICENSE                   -- MIT
+├── requirements.txt          -- pip dependencies
+├── environment.yml           -- conda equivalent
+├── configs/                  -- JSON hyperparameters + experiment design notes
+│   ├── paralora.json             -- sequence branch
+│   ├── paradg{,_v2,_v3}.json     -- structure branch (v3 = released recipe)
+│   ├── paralora_finetune_design.md
+│   └── paralora_ablation_design.md
+├── paralora/                 -- sequence branch library
+│   ├── lora.py              -- LoRAConfig / LoRALinear / modify_with_lora
+│   ├── model.py             -- T5EncoderForTokenClassification + LoRA wiring
+│   ├── data.py              -- CSV / paraperd / pkl split loaders
+│   ├── trainer.py           -- train_per_residue (HF Trainer + DeepSpeed)
+│   └── evaluate.py          -- metrics and embedding extraction
+├── paradg/                   -- structure branch library
+│   ├── models.py            -- ParaDG dual-view model + WeightedBCELoss
+│   ├── data.py              -- dual-view graph construction (16 Å + rASA)
+│   ├── oversampling.py      -- Algorithm 1: structure-preserving oversampling
+│   ├── evaluate.py          -- metrics, CI aggregation, paired t-test
+│   └── train.py             -- multi-seed training CLI
+├── data_prep/               -- end-to-end dataset construction pipeline
+│   ├── fetch_pdb_files.py           -- download/collect PECAN PDB files
+│   ├── build_structure_dataset.py    -- Cα coords + DSSP rASA + labels
+│   ├── embed_with_prot_t5.py         -- generic ProtT5 residue embeddings
+│   ├── prepare_sequence_splits.py    -- Parapred sequence CSV splits
+│   ├── build_structure_from_pkls.py -- structure pkl for an existing feature set
+│   └── merge_features_struct.py     -- merge feature + structure pickles
+├── analysis/                -- sanity checks and paper statistics
+│   ├── graph_connectivity.py
+│   ├── cdr_mask_statistics.py
+│   ├── profile_efficiency.py
+│   └── significance_test.py
+├── scripts/                 -- training / embedding / ablation entrypoints
+│   ├── _train_paralora_custom.py    -- shared training helpers
+│   ├── _train_paralora_ft.py       -- ParaLoRA fine-tuning (main)
+│   ├── _cv_paralora.py             -- 10-fold cross-validation
+│   ├── _ablation_cv_paralora.py    -- placement/rank/alpha ablations
+│   ├── _gen_paralora_embeddings.py -- dump fine-tuned residue embeddings
+│   ├── _sanity_{paralora,paradg}.py-- smoke tests
+│   └── run_all.py                  -- chained data-prep convenience CLI
+├── notebooks/               -- Jupyter entry points (outputs cleared)
+└── data/                    -- small text datasets (committed)
+    ├── paralora/            -- Parapred sequence splits (552 complexes)
+    ├── paralora_str/        -- sequence splits with structure columns
+    └── splits/              -- official PECAN split lists (train/val/test)
+```
