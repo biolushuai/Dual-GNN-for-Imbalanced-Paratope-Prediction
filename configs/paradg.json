@@ -1,0 +1,51 @@
+{
+  "data_dir": "data/pecan",
+  "save_dir": "results/paradg",
+
+  "surface_mode": "mask",
+  "rasa_threshold": 0.25,
+  "distance_threshold": 8.0,
+  "repair_isolated": true,
+  "repair_radius": 8.0,
+
+  "model": {
+    "num_node_features": 1024,
+    "hidden_channels": 256,
+    "num_layers": 3,
+    "dropout": 0.5,
+    "gat_heads": 4,
+    "activation": "elu",
+    "classifier": "mlp"
+  },
+
+  "loss": {
+    "pos_weight": 1.0,
+    "neg_weight": 1.0
+  },
+
+  "oversampling": {
+    "enabled": true,
+    "k_neighbors": 7,
+    "target_pos_ratio": 0.5,
+    "sample_ratio": null,
+    "metric": "euclidean"
+  },
+
+  "training": {
+    "batch_size": 8,
+    "num_epochs": 50,
+    "learning_rate": 2e-3,
+    "weight_decay": 1e-4,
+    "early_stopping_patience": 15,
+    "lr_scheduler_patience": 5,
+    "lr_scheduler_factor": 0.5,
+    "min_lr": 1e-6,
+    "grad_clip": 5.0,
+    "num_workers": 0
+  },
+
+  "evaluation": {
+    "threshold_selection": "val_f1",
+    "fixed_threshold": 0.5
+  }
+}
