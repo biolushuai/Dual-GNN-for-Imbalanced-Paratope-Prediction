@@ -141,15 +141,6 @@ python -m paradg.train \
     --target-pos-ratio 0.25 --lambda-max 0.02
 ```
 
-### 4. Analysis / statistics
-
-```bash
-python -m analysis.graph_connectivity --config configs/paradg_v3.json --output results/connectivity.csv
-python -m analysis.cdr_mask_statistics --output results/cdr_stats.csv
-python -m analysis.significance_test --runs "results/paradg/seed_*/metrics.json" --output results/significance.json
-python -m analysis.profile_efficiency --branch paradg --output results/profile_paradg.json
-```
-
 ## License
 
 Released under the MIT License (see `LICENSE`).
