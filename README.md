@@ -15,6 +15,6 @@ Two complementary models for antibody paratope prediction:
 | Branch | Package | Training entrypoint |
 | ------ | ------- | ------------------- |
 | Sequence (ParaLoRA) | `paralora` | `python -m scripts._train_paralora_ft --train-data data/paralora/train.csv --valid-data data/paralora/val.csv ...` |
-| Structure (ParaDG)  | `paradg`   | `python -m paradg.train --config configs/paradg_v3.json --data-dir <your-dataset-dir> ...` |
+| Structure (ParaDG)  | `paradg`   | `python -m paradg.train --config configs/paradg.json --data-dir <your-dataset-dir> ...` |
 
 ## Repository layout
