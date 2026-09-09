@@ -6,3 +6,15 @@ This repository is the implementation of our Paper under review.
 
 # Abstract
 Accurate prediction of antibody paratopes is critical for elucidating immune recognition mechanisms and accelerating the discovery of therapeutic antibodies. Current deep learning approaches face three major limitations: severe class imbalance in benchmark datasets, prohibitive computational costs associated with full fine-tuning of large protein language models (PLMs), and inadequate integration of three-dimensional (3D) structural information. We present a unified computational framework that jointly exploits sequence and structural features for paratope prediction. For sequence-based modeling, we develop ParaLoRA, a lightweight parameter-efficient fine-tuning (PEFT) method that incorporates Low-Rank Adaptation (LoRA) into PLMs. ParaLoRA enables task adaptation for paratope prediction with only a small number of additional trainable parameters. It further mitigates class imbalance via targeted sampling and cost-sensitive weighting. For structure-based modeling, we design ParaDG, a dual-view graph learning model. ParaDG constructs two complementary antibody graphs to capture global folding topology and local surface microenvironments. A novel graph oversampling module balances the feature distribution while preserving native spatial connectivity. The augmented graph is processed through a dual-view graph neural network for multi-scale feature fusion. Comprehensive benchmarking demonstrates that ParaLoRA and ParaDG outperform state-of-the-art sequence-based and structure-based predictors, respectively. This work delivers a robust and scalable framework for paratope prediction and supports advances in antibody engineering research. 
+
+Two complementary models for antibody paratope prediction:
+
+- **ParaLoRA** — parameter-efficient fine-tuning of the frozen [ProtT5](https://github.com/agemagician/ProtTrans) encoder with LoRA on the attention matrices (Wq/Wk/Wv/Wo), reducing trainable parameters from 1.2 B to ~2.5 M (0.2 %) while keeping sequence-level paratope accuracy competitive with state-of-the-art sequence-based methods.
+- **ParaDG** — a dual-view graph neural network over the antibody residue graph (global view + surface view with), trained with a structure-preserving graph oversampling module that balances the ~5 % positive residues without breaking spatial topology.
+
+| Branch | Package | Training entrypoint |
+| ------ | ------- | ------------------- |
+| Sequence (ParaLoRA) | `paralora` | `python -m scripts._train_paralora_ft --train-data data/paralora/train.csv --valid-data data/paralora/val.csv ...` |
+| Structure (ParaDG)  | `paradg`   | `python -m paradg.train --config configs/paradg_v3.json --data-dir <your-dataset-dir> ...` |
+
+## Repository layout
