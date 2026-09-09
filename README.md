@@ -66,3 +66,107 @@ Two complementary models for antibody paratope prediction:
     ├── paralora_str/        -- sequence splits with structure columns
     └── splits/              -- official PECAN split lists (train/val/test)
 ```
+## Installation
+
+```bash
+# pip
+pip install -r requirements.txt
+
+# or conda
+conda env create -f environment.yml
+conda activate paralora
+```
+
+Tested with Python 3.9, PyTorch 2.1–2.3 (CUDA 11.8/12.1), a single
+consumer-grade GPU (≥ 16 GB) is enough for ParaLoRA fine-tuning; ParaDG
+trains in minutes on one GPU.
+
+## Data
+
+Two datasets are used by the paper and both can be rebuilt from this repo:
+
+1. **Parapred sequence splits** — already included under `data/paralora/`
+   (552 complexes: 386 train / 83 val / 83 test; columns
+   `sequence,label,mask` with per-residue binary paratope labels). No
+   download needed to train the sequence branch.
+2. **PECAN structure dataset** — rebuild it from the official split lists in
+   `data/splits/pecan-paratope-{train,val,test}.txt` (195/101/148 complexes):
+
+   ```bash
+   python -m scripts.run_all fetch-pdb \
+       --split-list-dir data/splits \
+       --src-complex /path/to/AbAg-pdb-chain \
+       --src-ab /path/to/Ab-pdb --src-ag /path/to/Ag-pdb \
+       --out-dir data/pdb
+
+   python -m scripts.run_all structure-dataset \
+       --data-dir data/pdb --out-dir data/pecan --rasa-threshold 0.25
+
+   python -m scripts.run_all embed \
+       --input-dir data/pecan --output-dir data/pecan
+   ```
+
+   `build_structure_dataset.py` requires the DSSP executable
+   (`conda install -c conda-forge dssp`, version 4.x) for rASA computation.
+
+## Usage
+
+### 1. Fine-tune ParaLoRA (sequence branch)
+
+```bash
+python -m scripts._train_paralora_ft \
+    --base-config configs/paralora.json \
+    --train-data data/paralora/train.csv \
+    --valid-data data/paralora/val.csv \
+    --test-data  data/paralora/test.csv \
+    --output-dir runs/paralora \
+    --lora-layers q|k|v|o --lora-rank 4 \
+    --class-weight balanced --eval-scope all
+```
+
+Key options: `--lora-layers` (placement), `--lora-rank`, `--lora-alpha`
+(default `2*rank`), `--class-weight {paper,balanced,none}`,
+`--eval-scope {all,cdr}`. See `configs/paralora_finetune_design.md` for the
+full design notes and `scripts/_ablation_cv_paralora.py` for the ablation
+grid used in the paper (Table III/IV).
+
+### 2. Export fine-tuned embeddings for ParaDG
+
+```bash
+python -m scripts._gen_paralora_embeddings \
+    --config configs/paralora.json \
+    --src-dir /path/to/structure-pickles \
+    --out-dir /path/to/paralora-features
+```
+
+### 3. Train ParaDG (structure branch)
+
+```bash
+python -m paradg.train \
+    --config configs/paradg_v3.json \
+    --data-dir /path/to/paralora-features \
+    --save-dir results/paradg \
+    --seeds 0 1 2 3 4 \
+    --graph-source coords --distance-threshold 16.0 \
+    --surface-mode feature \
+    --synthetic-edges incoming --k-neighbors 7 \
+    --target-pos-ratio 0.25 --lambda-max 0.02
+```
+
+The flags above are the released recipe: Cα–Cα radius 16 Å, continuous
+rASA surface feature, and the structure-preserving oversampler with
+k = 7, λ_max = 0.02, target positive ratio 0.25 and incoming synthetic
+edges (see `paradg/oversampling.py` for the rationale of each choice).
+
+### 4. Analysis / statistics
+
+```bash
+python -m analysis.graph_connectivity --config configs/paradg_v3.json --output results/connectivity.csv
+python -m analysis.cdr_mask_statistics --output results/cdr_stats.csv
+python -m analysis.significance_test --runs "results/paradg/seed_*/metrics.json" --output results/significance.json
+python -m analysis.profile_efficiency --branch paradg --output results/profile_paradg.json
+```
+
+## License
+
+Released under the MIT License (see `LICENSE`).
