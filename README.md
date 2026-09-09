@@ -77,20 +77,14 @@ conda env create -f environment.yml
 conda activate paralora
 ```
 
-Tested with Python 3.9, PyTorch 2.1–2.3 (CUDA 11.8/12.1), a single
-consumer-grade GPU (≥ 16 GB) is enough for ParaLoRA fine-tuning; ParaDG
-trains in minutes on one GPU.
+Tested with Python 3.9, PyTorch 2.1–2.3 (CUDA 11.8/12.1), a single consumer-grade GPU (≥ 16 GB) is enough for ParaLoRA fine-tuning; ParaDG trains in minutes on one GPU.
 
 ## Data
 
 Two datasets are used by the paper and both can be rebuilt from this repo:
 
-1. **Parapred sequence splits** — already included under `data/paralora/`
-   (552 complexes: 386 train / 83 val / 83 test; columns
-   `sequence,label,mask` with per-residue binary paratope labels). No
-   download needed to train the sequence branch.
-2. **PECAN structure dataset** — rebuild it from the official split lists in
-   `data/splits/pecan-paratope-{train,val,test}.txt` (195/101/148 complexes):
+1. **Parapred sequence splits** — already included under `data/paralora/`; columns`sequence,label,mask` with per-residue binary paratope labels). No download needed to train the sequence branch.
+2. **PECAN structure dataset** — rebuild it from the official split lists in `data/splits/pecan-paratope-{train,val,test}.txt`:
 
    ```bash
    python -m scripts.run_all fetch-pdb \
@@ -124,12 +118,6 @@ python -m scripts._train_paralora_ft \
     --class-weight balanced --eval-scope all
 ```
 
-Key options: `--lora-layers` (placement), `--lora-rank`, `--lora-alpha`
-(default `2*rank`), `--class-weight {paper,balanced,none}`,
-`--eval-scope {all,cdr}`. See `configs/paralora_finetune_design.md` for the
-full design notes and `scripts/_ablation_cv_paralora.py` for the ablation
-grid used in the paper (Table III/IV).
-
 ### 2. Export fine-tuned embeddings for ParaDG
 
 ```bash
@@ -152,11 +140,6 @@ python -m paradg.train \
     --synthetic-edges incoming --k-neighbors 7 \
     --target-pos-ratio 0.25 --lambda-max 0.02
 ```
-
-The flags above are the released recipe: Cα–Cα radius 16 Å, continuous
-rASA surface feature, and the structure-preserving oversampler with
-k = 7, λ_max = 0.02, target positive ratio 0.25 and incoming synthetic
-edges (see `paradg/oversampling.py` for the rationale of each choice).
 
 ### 4. Analysis / statistics
 
