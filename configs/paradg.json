@@ -1,6 +1,6 @@
 {
   "data_dir": "/mnt/d/ProjectsData/ParaLoRADG_paralora",
-  "save_dir": "/mnt/d/WorkBuddy/ParaLoRAandDG/results/paradg_paralora_aucpr",
+  "save_dir": "/mnt/d/ProjectsData/ParaLoRAandDG/results/paradg_paralora_aucpr",
 
   "surface_mode": "mask",
   "rasa_threshold": 0.25,
