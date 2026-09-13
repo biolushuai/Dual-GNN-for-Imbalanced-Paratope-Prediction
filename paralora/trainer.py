@@ -1,16 +1,3 @@
-"""Training driver for the ParaLoRA sequence branch.
-
-The released notebook ships a single ``train_per_residue`` function that
-mixes ROCm-specific environment variables (``HIP_VISIBLE_DEVICES``),
-hard-coded paths and dataset preparation. The cleaned implementation
-here exposes a single ``train_per_residue`` function driven entirely by a
-configuration dictionary (see ``configs/paralora.json``).
-
-DeepSpeed is fully supported but optional. When the GPU is large enough,
-disabling DeepSpeed and relying on ``fp16=True`` yields a noticeable
-speed-up because the per-step CPU offload overhead disappears.
-"""
-
 from __future__ import annotations
 
 import argparse
