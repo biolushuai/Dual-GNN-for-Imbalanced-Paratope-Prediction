@@ -1,17 +1,3 @@
-"""Build the PECAN structure-dataset (Calpha coords + continuous rASA) for the
-exact set of complexes present in the ParaLoRA feature pickles.
-
-Unlike ``build_structure_dataset.py`` (which zips the three PDB directories by
-*sorted filename* and therefore mis-pairs antibody/antigen files for complexes
-whose filenames do not sort-align, e.g. complex ``1A3R_LH_P`` whose antibody
-file is ``1A3R_LH.pdb`` and antigen file is ``1A3R_P.pdb``), this driver walks
-the feature pickles' ``protein_name`` manifest and locates each complex's
-antibody / antigen PDB by ``<pdbid>_*.pdb`` glob + chain-subset matching.
-
-Outputs one pickle per split (same filenames as the feature pickles) so the
-merge step and ``paradg.data.load_protein_data`` can consume them directly.
-"""
-
 from __future__ import annotations
 
 import argparse
