@@ -1,30 +1,3 @@
-#!/usr/bin/env python
-"""ParaLoRA 自定义训练循环（绕开 transformers Trainer / accelerate GradScaler）
-
-设计目标：
-- 完全控制 optimizer + scheduler + loss + AMP（强制 fp32 cast）
-- 兼容 transformers 4.57 + accelerate 1.10 + peft 0.17 + torch 2.3 的当前 env
-- 复用 ``build_pt5_classifier`` + ``_to_dataset``，与原 Trainer 共享模型/数据装配
-- 复现论文 §III-B-2 训练协议：30 epoch, lr=3e-4, weight_decay=0, 手动 linear warmup
-
-用法（从 ``ParaLoRA/`` 目录执行）：
-    python -m scripts._train_paralora_custom \\
-        --config configs/paralora.json \\
-        --train-data /path/to/train.csv \\
-        --valid-data /path/to/valid.csv \\
-        --train-format paraperd --valid-format paraperd \\
-        --output-dir ../results/paralora_seed42 \\
-        --epochs 30 --seed 42
-
-或（pkl 格式）：
-    python -m scripts._train_paralora_custom \\
-        --config configs/paralora.json \\
-        --train-data data/paralora/train.pkl --train-format pkl \\
-        --valid-data data/paralora/valid.pkl --valid-format pkl \\
-        --output-dir ../results/paralora_seed42 \\
-        --epochs 30 --seed 42
-"""
-
 from __future__ import annotations
 
 import argparse
