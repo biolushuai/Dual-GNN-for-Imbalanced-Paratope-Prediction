@@ -1,32 +1,3 @@
-#!/usr/bin/env python
-"""Train and evaluate ParaDG on the PECAN paratope benchmark.
-
-Examples
---------
-Single run with the released configuration::
-
-    python -m paradg.train --data-dir data/pecan --save-dir results/paradg
-
-Reproduce the multi-seed statistics (Table IX of the revision)::
-
-    python -m paradg.train --data-dir data/pecan --save-dir results/paradg \
-        --seeds 0 1 2 3 4
-
-Ablations requested by the reviewers::
-
-    # rASA cutoff (15 / 20 / 25 / 30 %)
-    python -m paradg.train --rasa-threshold 0.20
-
-    # continuous rASA as a node feature instead of hard masking
-    python -m paradg.train --surface-mode feature
-
-    # graph distance threshold (6 / 8 / 10 / 12 A)
-    python -m paradg.train --distance-threshold 10.0
-
-    # oversampling ratio
-    python -m paradg.train --sample-ratio 2.5
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -84,7 +55,7 @@ class Trainer:
         )
 
         self.best_model_path = os.path.join(save_dir, "best_model.pth")
-        # ``selection_metric`` 决定该初值是最小化还是最大化目标
+        # ``selection_metric`` 
         selection = config["training"].get("selection_metric", "val_loss")
         self.best_val_loss = (
             -float("inf") if selection in ("auc_pr", "auc_roc") else float("inf")
@@ -149,7 +120,6 @@ class Trainer:
             self.scheduler.step(smoothed)
 
             val_metrics = compute_metrics(val_labels, val_scores, threshold=0.5)
-            # 排序质量指标（与阈值无关），用于可选的模型选择准则
             try:
                 val_metrics["auc_roc"] = float(
                     roc_auc_score(val_labels, val_scores)
@@ -170,10 +140,6 @@ class Trainer:
                 f"val_loss={val_loss:.4f} val_auc_pr={val_metrics['auc_pr']:.4f} "
                 f"val_mcc={val_metrics['mcc']:.4f}"
             )
-
-            # 模型选择准则：默认沿用 smoothed val loss（历史行为）；
-            # 但对极度不平衡的 paratope 预测，val loss 会在早期过拟合后迅速爆炸，
-            # 用排序质量指标（auc_pr / auc_roc）选 epoch 通常更稳。
             selection = self.config["training"].get("selection_metric", "val_loss")
             if selection in ("auc_pr", "auc_roc"):
                 current = float(val_metrics[selection])
