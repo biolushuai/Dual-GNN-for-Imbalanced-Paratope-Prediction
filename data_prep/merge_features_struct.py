@@ -1,27 +1,3 @@
-"""Merge the qkvo r8 ParaLoRA feature pickles with the DSSP-derived structure
-pickles into a single dataset that can drive every ParaDG ablation.
-
-The output keeps *everything* the feature pickle already carried (``ab_feature``
-= qkvo r8 embedding, paratope labels, the pre-computed 4.5 A heavy-atom
-``antibody_adjacency_labels`` and the original surface labels) and adds two
-fields recovered from the PDB files:
-
-``antibody_coords``
-    Calpha coordinates, so the global view can be rebuilt as a Calpha-Calpha
-    contact map at any cutoff (paper Eq. 8) -> contact-cutoff ablation.
-``antibody_rasa``
-    Continuous DSSP relative solvent accessibility -> surface-cutoff ablation
-    (re-deriving the mask at load time) and the ``surface_mode='feature'``
-    variant that feeds rASA in as an extra node channel.
-
-Because the rASA cutoff and the graph source are resolved at *load* time by
-``paradg.data`` (``--rasa-threshold`` / ``--graph-source``), one merged copy is
-enough - no need to materialise one dataset per ablation value.
-
-Records whose structure could not be rebuilt keep their original fields and are
-reported; they simply cannot take part in the structure-dependent ablations.
-"""
-
 from __future__ import annotations
 
 import argparse
