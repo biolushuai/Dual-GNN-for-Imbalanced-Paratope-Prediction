@@ -1,15 +1,3 @@
-"""Evaluation utilities for the ParaLoRA sequence branch.
-
-Two routines are provided:
-
-* :func:`evaluate_paratope` -- run a saved checkpoint on a labelled split
-  and return AUC/AUC-PR/F1/MCC plus the (score, label) vectors for
-  further analysis.
-* :func:`extract_embeddings` -- run a saved checkpoint on a labelled
-  split and return the per-residue encoder embeddings (used by the
-  structure branch / external classifiers).
-"""
-
 from __future__ import annotations
 
 import json
