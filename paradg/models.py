@@ -1,11 +1,3 @@
-"""ParaDG model definition and the class-imbalance-aware loss.
-
-Naming convention (unified across manuscript and code):
-    ParaDG              -- the complete dual-view graph learning framework
-    global-view branch  -- GCNConv stack over the full antibody graph A'
-    surface-view branch -- GATConv stack over the masked surface subgraph A_surf
-"""
-
 from typing import Optional
 
 import torch
