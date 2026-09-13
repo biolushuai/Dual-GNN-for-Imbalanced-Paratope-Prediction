@@ -1,18 +1,3 @@
-"""Sequence dataset construction for ParaLoRA.
-
-The released notebook reads the data from a CSV (``sequence / label / mask``),
-batches sequences with ``" "`` between residues for the ProtT5 tokenizer,
-and uses ``DataCollatorForTokenClassification`` to align labels with the
-sub-token output. ``create_dataset`` reproduces this workflow in a
-re-usable function that supports both CSV and pickle inputs.
-
-* ``mask`` is the CDR indicator (``1`` for residues inside a CDR). It is
-  used only during training (per Section III-B-2 of the manuscript) to
-  bias the loss toward paratope predictions.
-* For evaluation, the mask is set to all-ones so every residue
-  contributes to the metric.
-"""
-
 from __future__ import annotations
 
 import ast
