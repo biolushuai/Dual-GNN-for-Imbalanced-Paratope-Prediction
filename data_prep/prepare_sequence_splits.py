@@ -1,26 +1,3 @@
-"""Prepare the PECAN splits used by the ParaLoRA sequence branch.
-
-The released ParaLoRA experiments used two upstream data layouts:
-
-* ``data/pecan-paratope-train.pkl`` -- one pickle per split, every entry
-  is ``{"ab_sequence": str, "ab_label": list[int]}``. Used for the
-  initial cross-validation runs (90 % paratope accuracy was reported on
-  this layout).
-
-* ``data/processed_dataset_paraperd.csv`` -- a single CSV with columns
-  ``pdb, chain_type, sequence, paratope, cdrs``. Used for the released
-  model checkpoint.
-
-This script converts both layouts into the canonical format consumed by
-``paralora.data.load_split``:
-
-    columns = sequence | label | mask
-
-The CDR positions come from the ``cdrs`` column when available. When
-the CSV is missing, the mask is set to all-ones (everything contributes
-to the loss during evaluation).
-"""
-
 from __future__ import annotations
 
 import argparse
