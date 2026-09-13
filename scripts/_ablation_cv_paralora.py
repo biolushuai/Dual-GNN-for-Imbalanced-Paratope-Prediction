@@ -1,29 +1,3 @@
-#!/usr/bin/env python
-"""ParaLoRA 消融实验编排器：LoRA 注入位置 × rank 的 2D 网格，每组做 10 折 CV。
-
-协议（见 configs/paralora_ablation_design.md）：
-  * Parapred 552 复合物，KFold(10, shuffle, seed=42)
-  * 每折 90% 内再切 inner-train(80%) / inner-val(10%)：
-    - inner-val 上 AUC-PR 最大化 → 早停 + 选最佳 epoch 存盘
-    - inner-val 上 F1 最大化 → 选阈值，应用到 held-out 10% 测试折
-  * 每折保存 best_trainable_params.pt（LoRA A/B + 可训练分类头）
-  * 每个消融配置目录额外保存：
-      train_config.json        —— 精确训练配置（供 _gen_paralora_embeddings 复用）
-      ablation_summary.json    —— 10 折明细 + 均值±SD + 推荐折
-      best_for_paradg.pt       —— val AUC-PR 最高折的参数副本（推荐单一模型）
-  * 顶层 ablation_master.json —— 各配置均值±SD + 推荐检查点 + 排序
-
-可断点续跑：已存在 foldNN_best_params.pt 则跳过该折；已存在 ablation_summary.json
-则跳过该配置。
-
-复用 _train_paralora_ft 与 _train_paralora_custom 的已验证 helper，避免漂移。
-
-用法（ParaLoRA/ 目录）：
-  python -m scripts._ablation_cv_paralora \
-      --data data/paralora/full.csv \
-      --out-root ../results/ablation \
-      --placements qv qkv qkvo --ranks 4 8 16
-"""
 from __future__ import annotations
 
 import argparse
