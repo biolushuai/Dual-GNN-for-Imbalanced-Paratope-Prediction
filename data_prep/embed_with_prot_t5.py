@@ -1,15 +1,3 @@
-"""Embed antibody sequences with ProtT5 and store the result in-place.
-
-Reads the pickle produced by ``build_structure_dataset.py`` (which has
-no ``ab_feature`` field yet) and runs the ProtT5 encoder over every
-antibody sequence. The per-residue embedding (last hidden state) is
-saved under the ``ab_feature`` key with the same shape as the residue
-list (1024-dim float16).
-
-This corresponds to cells 32-34 of the released
-``load_PT5_LoRA_Finetuning_pecan.ipynb`` notebook, generalised to a CLI.
-"""
-
 from __future__ import annotations
 
 import argparse
