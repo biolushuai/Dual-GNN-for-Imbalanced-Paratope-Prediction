@@ -8,8 +8,8 @@ latter format from the raw Parapred CSV.
 import os
 import pandas as pd
 
-SRC = "/mnt/d/研究资料/论文投稿/2026年/03-ParaLoRAandDG/Code/v1/做数据集和第一个实验/data/processed_dataset_paraperd.csv"
-OUT_DIR = "/mnt/d/WorkBuddy/ParaLoRAandDG/ParaLoRA/data/paralora_str"
+SRC = "/mnt/d/.../processed_dataset_paraperd.csv"
+OUT_DIR = "/mnt/d/ProjectData/ParaLoRAandDG/ParaLoRA/data/paralora_str"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 df = pd.read_csv(SRC)
