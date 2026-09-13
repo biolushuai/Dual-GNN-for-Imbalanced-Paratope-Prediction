@@ -1,38 +1,3 @@
-"""Reproducible data preparation for the PECAN paratope benchmark.
-
-The pipeline has three stages. Each script is self-contained and exposes
-a CLI so they can be invoked independently and composed into shell
-pipelines:
-
-1. ``fetch_pdb_files.py`` -- locate the antibody / antibody-antigen
-   complex / antigen PDB files for every entry listed in the official
-   PECAN split text file. Names are produced in three layouts:
-
-   * ``{pdb}_{c1c2}_{chain}.pdb``  (AbAg-pdb-chain)
-   * ``{pdb}_{c1c2}.pdb``         (ab-alone)
-   * ``{pdb}_{chain}.pdb``        (ag-alone)
-
-2. ``build_structure_dataset.py`` -- read the three PDB files, identify
-   paratope residues through a heavy-atom 4.5 A contact search, mark
-   surface residues through DSSP (rASA >= 25 %) and store the
-   Calpha-Calpha contact map as a binary adjacency. The output pickle
-   holds the fields consumed by ``paradg.data.load_protein_data``.
-
-3. ``embed_with_prot_t5.py`` -- load a checkpoint produced by stage 2,
-   run the ProtT5 encoder on every antibody sequence and append the
-   per-residue embedding under ``ab_feature``. The released config uses
-   ``prot_t5_xl_half_uniref50-enc`` and stores the embeddings as
-   ``float16`` numpy tensors.
-
-The make_datasets directory of the released code base contained three
-additional files that are not used by the cleaned pipeline:
-
-* ``cat_label_light.py`` was a notebook-style dump for counting labels.
-* ``adjacency_to_edge_index.py`` was re-implemented inside ``paradg``.
-* ``utils.py`` provided helper functions for an old SAGE-style encoder
-  that has been superseded by ParaDG.
-"""
-
 from __future__ import annotations
 
 import argparse
