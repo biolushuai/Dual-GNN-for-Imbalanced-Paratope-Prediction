@@ -1,11 +1,3 @@
-"""Evaluation utilities for ParaDG.
-
-Reported metrics: AUC-ROC, AUC-PR, F1, MCC, precision, recall and specificity.
-Precision/recall are reported alongside the ranking metrics because false
-positives are expensive to validate experimentally while false negatives are
-costly for discovery-oriented screening.
-"""
-
 from __future__ import annotations
 
 from typing import Dict, List, Sequence, Tuple
