@@ -1,23 +1,3 @@
-"""LoRA adapter module adapted from the ProtT5 LoRA tutorial.
-
-The implementation is identical to the released notebook, but the API is
-re‑organised so the rest of the package can drive it from configuration
-files and CLI arguments.
-
-LoRA hyperparameters follow Section III-B-2 of the manuscript:
-
-* rank  ``r = 4``
-* scaling ``alpha = 8`` (effective scaling ``alpha / r = 2``)
-* initialisation ``A ~ N(0, 0.01)``, ``B = 0``
-* target projections ``q, v`` of every self-attention layer
-
-The ``modify_with_lora`` helper walks ``transformer.named_modules()``
-and replaces the selected ``nn.Linear`` children with :class:`LoRALinear`.
-The base weight is shared with the original layer (no copy) so the
-state-dict of a checkpoint matches the released ParaLoRA weights
-byte-for-byte when only the LoRA parameters are stored.
-"""
-
 from __future__ import annotations
 
 import re
