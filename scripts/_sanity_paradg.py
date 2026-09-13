@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-"""ParaDG 端到端 sanity check：加载数据 + 1 epoch 训练"""
 import json
 import os
 import time
