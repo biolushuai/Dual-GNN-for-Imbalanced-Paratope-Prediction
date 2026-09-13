@@ -1,35 +1,3 @@
-#!/usr/bin/env python
-"""用 ParaLoRA 微调后的模型重算 PECAN 抗体残基嵌入，作为 ParaDG 节点特征。
-
-**重要更正（2026-09-09 实证）**：``pecan-paratope-*-all-paragraph.pkl`` 里的
-``ab_feature`` **不是**原始 ProtT5 嵌入，而是**论文 ParaLoRA 微调后模型**的
-编码器隐状态。依据：
-  1. ``Code/README.md``：``load_PT5_LoRA_Finetuning_pecan.ipynb`` "re-loads a
-     **fine-tuned checkpoint**, embeds a pickle file ... under ``ab_feature``"
-  2. 该笔记本 cell 27 ``load_model("../finetuned_models/paragraph_nopecan_1_1_e1.pth")``
-     → cell 32 用该模型编码 ``antibody_sequence`` 并 ``data['ab_feature'] = features[i]``
-  3. 实测（``results/_verify_feature_identity.py``，val 前 12 条）：
-     cos(ab_feature, 本机原始 ProtT5-half-uniref50) = **0.7525**，
-     残基范数 8.48（pkl） vs 6.27（原始 ProtT5） → 显著不同，故为微调版。
-
-因此本脚本的语义是「**用我们复现的 ParaLoRA 权重替换论文自带的 ParaLoRA 特征**」，
-而不是「把原始特征升级为微调特征」。两者不可混淆。
-
-本脚本：
-1. 按 seed 重建 ParaLoRA 微调模型（set_all_seeds → build → 加载 ckpt；
-   分类头为冻结随机头，可精确重建，方法同 _eval_val_threshold.py）
-2. 对每个 pkl 记录的 ``antibody_sequence`` 跑编码器，取最后一层隐状态
-   (L, 1024)，替换 ab_feature
-3. 其余字段（labels / adjacency / surface index）原样保留，写回新目录
-   （文件名保持不变，供 paradg/data.py 直接读取）
-
-用法（从 ParaLoRA/ 目录执行）：
-    python -m scripts._gen_paralora_embeddings \
-        --ckpt-dir ../results/paralora_30ep_s2 --seed 2 \
-        --src-dir /mnt/d/ProjectsData/ParaLoRADG \
-        --out-dir /mnt/d/ProjectsData/ParaLoRADG_paralora
-"""
-
 from __future__ import annotations
 
 import argparse
@@ -53,7 +21,6 @@ SPLITS = {
 
 
 def embed_sequence(model, tokenizer, seq: str, device: torch.device) -> np.ndarray:
-    """返回 (L, 1024) 的逐残基嵌入（去掉结尾 </s>）。"""
     encoded = tokenizer(
         " ".join(list(seq)),
         return_tensors="pt",
