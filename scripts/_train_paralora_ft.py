@@ -1,14 +1,3 @@
-"""ParaLoRA 微调实现（论文方法描述 + 自由超参）。
-
-设计要点（见 configs/paralora_finetune_design.md）：
-  * 骨干 ProtT5-XL-UniRef50 冻结；LoRA 作用于 W_q/W_k/W_v/W_o（论文明确）
-  * 分类头可训练（论文 Fig 1 “task-specific linear classifier”）
-  * 损失 = CDR±2 区域加权 CE，权重默认 balanced（可切换 paper / none）
-  * 模型选择判据 = 验证集 AUC-PR（非 val loss，val loss 会爆炸）
-  * 论文口径阈值：阈值只在 val 选，应用到 test
-
-复用 _train_paralora_custom 的已验证 helper，避免漂移。
-"""
 import argparse
 import json
 import math
@@ -82,9 +71,6 @@ def select_loss_weights(mode: str, train_split) -> List[float]:
     raise ValueError(f"unknown class-weight mode: {mode}")
 
 
-# 可训练参数集的两种口径（P0-1 纯 LoRA 分离实验用）：
-#   ln_lora   -> LayerNorm 缩放/偏置 + LoRA A/B（论文默认，也是此前全部消融所用）
-#   lora_only -> 仅 LoRA A/B，冻结 LayerNorm（与"无 LoRA"基线构成完整分解）
 TRAINABLE_PRESETS = {
     "ln_lora": ".*layer_norm.*|.*lora_[ab].*",
     "lora_only": ".*lora_[ab].*",
@@ -208,8 +194,7 @@ def main() -> None:
             alpha=args.lora_alpha or 2 * args.lora_rank,
             trainable=args.trainable,
         ),
-        # 元数据：记录本轮实际使用的类别权重（实际张量由 select_loss_weights 计算）。
-        # 'paper' -> CrossEntropyLoss(weight=[neg, pos]) = [1.0, 0.1]
+
         "loss": {"pos_weight": 0.1, "neg_weight": 1.0}
         if class_weight_mode == "paper"
         else ({"pos_weight": 1.0, "neg_weight": 1.0}
