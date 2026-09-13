@@ -1,25 +1,3 @@
-#!/usr/bin/env python
-"""在 Parapred 上做 10-fold 交叉验证复现论文协议（ParaLoRA 序列分支）。
-
-论文协议（tex）：所有 ParaLoRA 表格脚注均为 "obtained over ten folds"。
-此前复现用的是 70/15/15 holdout × 5 seeds，与论文协议不一致。
-
-本脚本：
-1. 载入 Parapred 全量（552 复合物），KFold(shuffle, seed) 切 10 折
-2. 每折：90% 数据再切 inner-train(80%) / inner-val(10%)，
-   inner-val 用于 early stopping（patience=5，指标 val AUC-ROC）与阈值 sweep
-3. 每折结束后，用 inner-val 最佳阈值评估 held-out 10%（论文口径：
-   阈值在验证集上选，不在测试折上选）
-4. 汇总 10 折 mean±SD，与论文 Table（AUC ROC 0.955/MCC 0.647 等）对比
-
-每折重建模型（LoRA 重新初始化），保证折间独立。
-
-用法（从 ParaLoRA/ 目录执行）：
-    python -m scripts._cv_paralora --config configs/paralora.json \
-        --data data/paralora/full.csv --folds 10 --epochs 30 \
-        --out ../results/paralora_10fold.json
-"""
-
 from __future__ import annotations
 
 import argparse
