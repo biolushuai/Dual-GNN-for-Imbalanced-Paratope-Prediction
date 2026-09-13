@@ -1,22 +1,3 @@
-"""Graph construction for the structure-based branch (ParaDG).
-
-Each antibody is represented as a dual-view graph over the *same* residue node set:
-
-* global view  : edges between Calpha pairs within ``distance_threshold`` (A' in Eq. 8)
-* surface view : the same adjacency masked to surface residues
-  (A_surf = M_surf * A' * M_surf^T in Eq. 14)
-
-Two surface-handling modes are supported because they are compared in the
-revision experiments:
-
-``mask`` (default)
-    Hard rASA threshold: only surface residues keep edges in the surface view.
-``feature``
-    No hard masking. The continuous rASA value is appended as an extra node
-    feature and the surface view uses the full graph, letting the network learn
-    the exposure/paratope correlation itself.
-"""
-
 from __future__ import annotations
 
 import os
