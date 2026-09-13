@@ -35,13 +35,6 @@ from scripts._train_paralora_ft import (
 
 
 def static_loss_weights(mode: str) -> dict:
-    """train_config.json 中记录的损失权重。
-
-    注意：此处只用于落盘元数据，训练时实际权重由 select_loss_weights 逐折计算。
-    mode='paper' -> CrossEntropyLoss(weight=[neg, pos]) = [1.0, 0.1]，与
-    paralora_30ep_* 基线（configs/paralora.json: pos_weight=0.1, neg_weight=1.0）一致。
-    mode='balanced' 依赖每一折的 train split，无法静态确定，记为 None。
-    """
     if mode == "paper":
         return {"pos_weight": 0.1, "neg_weight": 1.0}
     if mode == "none":
@@ -86,7 +79,6 @@ def run_fold(fold: int, train_idx, val_idx, test_idx, raw, config: dict,
     model = model.to(device).float()
     model.train()
 
-    # 自检：LoRA 注入层数与可训练集构成（防止 lora_layers 正则失配导致 0 注入）
     n_train = sum(int(p.numel()) for p in model.parameters() if p.requires_grad)
     n_lora_t = sum(1 for nm, _ in model.named_parameters()
                    if ".lora_a" in nm or ".lora_b" in nm)
@@ -149,14 +141,12 @@ def run_fold(fold: int, train_idx, val_idx, test_idx, raw, config: dict,
         if args.patience > 0 and no_improve >= args.patience:
             break
 
-    # 落盘本折最优可训练参数（LoRA A/B + 分类头）
     os.makedirs(os.path.dirname(fold_params_path) or ".", exist_ok=True)
     if best_state is not None:
         torch.save(best_state, fold_params_path)
     else:
         save_trainable_parameters(model, fold_params_path)
 
-    # 用最优参数评估 held-out 测试折
     if best_state is not None:
         for name, param in model.named_parameters():
             if name in best_state:
@@ -184,14 +174,14 @@ def run_fold(fold: int, train_idx, val_idx, test_idx, raw, config: dict,
 
 def run_config(name: str, config: dict, raw, device, args, out_dir: str) -> dict:
     os.makedirs(out_dir, exist_ok=True)
-    # 保存精确训练配置（供 ParaDG 特征生成复用）
+
     with open(os.path.join(out_dir, "train_config.json"), "w") as h:
         json.dump(config, h, indent=2)
 
     n = len(raw.sequences)
     kf = KFold(n_splits=args.folds, shuffle=True, random_state=args.fold_seed)
     fold_results: List[dict] = []
-    # 已完成的折（断点续跑）
+
     for f in range(args.folds):
         fp = os.path.join(out_dir, f"fold{f:02d}_best_params.pt")
         fs = os.path.join(out_dir, f"fold{f:02d}_summary.json")
@@ -199,7 +189,7 @@ def run_config(name: str, config: dict, raw, device, args, out_dir: str) -> dict
             fold_results.append(json.load(open(fs)))
             print(f"  [{name}] fold {f+1}: skipped (exists)", flush=True)
             continue
-        # 找到本折的 idx
+
         splits = list(kf.split(np.arange(n)))
         rest_idx, test_idx = splits[f]
         inner_test_size = 0.5 if args.folds == 2 else 1.0 / (args.folds - 1)
@@ -237,10 +227,9 @@ def run_config(name: str, config: dict, raw, device, args, out_dir: str) -> dict
         vals = np.array([r[k] for r in fold_results], dtype=float)
         agg[k] = {"mean": float(vals.mean()), "std": float(vals.std()),
                   "values": vals.tolist()}
-    # 推荐折：val AUC-PR 最高
+
     best_fold = int(np.argmax([r["val_auc_pr"] for r in fold_results]))
-    # 拷贝推荐折参数：best_for_paradg.pt（可读名）+ best_trainable_params.pt
-    # （ParaDG 特征生成脚本 _gen_paralora_embeddings 的硬编码读取名）
+
     import shutil
     src = os.path.join(out_dir, f"fold{best_fold:02d}_best_params.pt")
     if os.path.exists(src):
@@ -291,7 +280,6 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--folds", type=int, default=10)
     p.add_argument("--placements", nargs="+", default=["qv", "qkv", "qkvo"])
     p.add_argument("--ranks", nargs="+", type=int, default=[4, 8, 16])
-    # 论文口径消融要求 placement 与 rank 一一对应，不做笛卡尔积
     p.add_argument("--pairs", nargs="+", default=None,
                    help="placement:rank 配对列表 (例: 'q:8' 'qkvo:2'). "
                         "若提供则忽略 --placements 与 --ranks")
