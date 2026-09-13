@@ -4,7 +4,6 @@
   "half_precision": true,
 
   "lora": {
-    "_note": "Defaults reproduce the released checkpoint. The manuscript describes rank r=4, scaling alpha=8, A~N(0, 0.02), B=0, applied to all four attention projections; use lora_layers='q|k|v|o' and lora_init_scale=0.02 when training from scratch.",
     "lora_rank": 4,
     "lora_init_scale": 0.01,
     "lora_alpha": 8,
@@ -15,9 +14,8 @@
   },
 
   "loss": {
-    "_note": "Weights selected by grid search over {0.1:1, 0.5:1, 1:1, 1:1.5, 1:3.5} on the Parapred 10-fold CV protocol (cf. response R1-C6). The released checkpoint uses the values below; users reproducing the training from scratch should keep this setting as the default.",
-    "pos_weight": 0.1,
-    "neg_weight": 1.0
+    "pos_weight": 1.0,
+    "neg_weight": 0.1
   },
 
   "data": {
