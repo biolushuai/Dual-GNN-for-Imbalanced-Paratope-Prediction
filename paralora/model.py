@@ -1,15 +1,3 @@
-"""T5 encoder plus a token classification head.
-
-The released notebook wires the encoder manually and uses an awkward branch
-(``if not self.training: return outputs[0]``) that prevents gradient flow
-during the first forward pass and silently bypasses the loss. The cleaned
-implementation below follows the standard Hugging Face pattern
-(``forward`` always returns a :class:`TokenClassifierOutput`) and lets the
-caller opt-in to embedding extraction via a separate ``extract_embeddings``
-helper. The class weights used by the cross-entropy loss are now driven by
-``config["loss"]["pos_weight"]`` instead of a hard-coded ``[1, 4]`` vector.
-"""
-
 from __future__ import annotations
 
 import copy
