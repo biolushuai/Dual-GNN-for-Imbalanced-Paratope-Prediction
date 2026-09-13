@@ -1,16 +1,3 @@
-"""Compute paratope / surface / adjacency labels from PECAN PDB files.
-
-This is a clean, fully CLI-driven re-implementation of the released
-``make_datasets_noH.py`` (and the surface-feature step from
-``add_surface_pms.py``). The algorithm is identical to the released
-code; the difference is the absence of Chinese comments, the removal of
-hard-coded paths, and the addition of an optional ``--rasa-threshold``
-flag that lets the user reproduce the 25 % / 30 % ablations.
-
-Outputs a pickle per split. Every record carries the keys documented in
-``paradg.data.load_protein_data``.
-"""
-
 from __future__ import annotations
 
 import argparse
