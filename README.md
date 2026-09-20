@@ -9,7 +9,7 @@ Accurate prediction of antibody paratopes is critical for elucidating immune rec
 
 Two complementary models for antibody paratope prediction:
 
-- **ParaLoRA** — parameter-efficient fine-tuning of the frozen [ProtT5](https://github.com/agemagician/ProtTrans) encoder with LoRA on the attention matrices (Wq/Wk/Wv/Wo), reducing trainable parameters from 1.2 B to ~2.5 M (0.2 %) while keeping sequence-level paratope accuracy competitive with state-of-the-art sequence-based methods.
+- **ParaLoRA** — parameter-efficient fine-tuning of the frozen [ProtT5](https://github.com/agemagician/ProtTrans) encoder with LoRA on the attention matrices (Wq/Wk/Wv/Wo), reducing trainable parameters from 1.2 B to ~1.03 M (0.09 %) while keeping sequence-level paratope accuracy competitive with state-of-the-art sequence-based methods.
 - **ParaDG** — a dual-view graph neural network over the antibody residue graph (global view + surface view with), trained with a structure-preserving graph oversampling module that balances the ~5 % positive residues without breaking spatial topology.
 
 | Branch | Package | Training entrypoint |
